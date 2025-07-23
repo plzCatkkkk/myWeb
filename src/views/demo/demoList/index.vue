@@ -48,10 +48,100 @@ onMounted(() => {
 })
 </script>
 <style lang="scss" scoped>
+@keyframes movement {
+  0%,
+  100% {
+    background-size:
+      130vmax 130vmax,
+      80vmax 80vmax,
+      90vmax 90vmax,
+      90vmax 90vmax,
+      60vmax 60vmax;
+    background-position:
+      -80vmax -80vmax,
+      60vmax -30vmax,
+      10vmax 10vmax,
+      -30vmax -10vmax,
+      50vmax 50vmax;
+  }
+  25% {
+    background-size:
+      100vmax 100vmax,
+      90vmax 90vmax,
+      100vmax 100vmax,
+      110vmax 110vmax,
+      90vmax 90vmax;
+    background-position:
+      -60vmax -90vmax,
+      50vmax -40vmax,
+      0vmax -20vmax,
+      -40vmax -20vmax,
+      40vmax 60vmax;
+  }
+  50% {
+    background-size:
+      80vmax 80vmax,
+      110vmax 110vmax,
+      80vmax 80vmax,
+      60vmax 60vmax,
+      80vmax 80vmax;
+    background-position:
+      -50vmax -70vmax,
+      40vmax -30vmax,
+      10vmax 0vmax,
+      20vmax 10vmax,
+      30vmax 70vmax;
+  }
+  75% {
+    background-size:
+      90vmax 90vmax,
+      90vmax 90vmax,
+      100vmax 100vmax,
+      90vmax 90vmax,
+      70vmax 70vmax;
+    background-position:
+      -50vmax -40vmax,
+      50vmax -30vmax,
+      20vmax 0vmax,
+      -10vmax 10vmax,
+      40vmax 60vmax;
+  }
+}
+
 .full-screen {
   height: 100vh;
   width: 100vw;
   background-color: rgba(68, 220, 223, 0.5);
+  transition: transform 1s;
+  transform: scale(1);
+  overflow: hidden;
+  // background-color: rgba(196, 123, 255, 0.5);
+  background-image:
+    // radial-gradient(closest-side, rgba(64, 158, 255, 1), rgba(64, 158, 255, 0)),
+    // radial-gradient(closest-side, rgba(121, 121, 255, 1), rgba(121, 121, 255, 0)),
+    // radial-gradient(closest-side, rgb(187, 103, 255), rgba(196, 123, 255, 0)),
+    // radial-gradient(closest-side, rgb(255, 144, 227), rgba(255, 168, 233, 0)),
+    // radial-gradient(closest-side, rgb(255, 204, 220), rgba(255, 159, 189, 0));
+
+    radial-gradient(closest-side, #0dceda, rgba(64, 158, 255, 0)),
+    radial-gradient(closest-side, #6ef3d6, rgba(121, 121, 255, 0)),
+    radial-gradient(closest-side, #c6fce5, rgba(196, 123, 255, 0)),
+    radial-gradient(closest-side, #ebfffa, rgba(255, 168, 233, 0)),
+    radial-gradient(closest-side, #00e0ff, rgba(255, 159, 189, 0));
+  background-size:
+    130vmax 130vmax,
+    80vmax 80vmax,
+    90vmax 90vmax,
+    110vmax 110vmax,
+    90vmax 90vmax;
+  background-position:
+    -80vmax -80vmax,
+    60vmax -30vmax,
+    10vmax 10vmax,
+    -30vmax -10vmax,
+    50vmax 50vmax;
+  background-repeat: no-repeat;
+  animation: 10s movement linear infinite;
   .content {
     width: 80%;
     height: 100%;
@@ -100,11 +190,22 @@ onMounted(() => {
         gap: 20px;
         .list-item {
           background-color: #fff;
+          opacity: 0.6;
           border-radius: 20px;
           line-height: 60px;
           padding: 0 20px;
           height: 60px;
           box-shadow: 0px 2px 6px 0px rgba(29, 104, 161, 0.272);
+          transition: all 0.3s ease-in-out;
+          cursor: pointer;
+          // 禁止用户选中文字
+          user-select: none; /* 标准属性 */
+          -webkit-user-select: none; /* Safari/Chrome */
+          -moz-user-select: none; /* Firefox */
+          -ms-user-select: none; /* IE/Edge */
+          &:hover {
+            opacity: 1;
+          }
         }
       }
     }
