@@ -1,11 +1,11 @@
-const sketchpad = () => import('./sketchpad/index.vue')
+const Sketchpad = () => import('./sketchpad/index.vue')
 
 export function DemoItemsRoute() {
   return [
     {
       path: 'sketchpad',
-      name: 'sketchpad',
-      component: sketchpad,
+      name: 'Sketchpad',
+      component: Sketchpad,
     },
   ]
 }

@@ -1,5 +1,5 @@
-const demoList = () => import('./demoList/index.vue')
-const layout = () => import('./layout/index.vue')
+const DemoList = () => import('./demoList/index.vue')
+const Layout = () => import('./layout/index.vue')
 
 import { DemoItemsRoute } from './items/items.route.js'
 
@@ -7,13 +7,13 @@ export function DemoRoute() {
   return [
     {
       path: '/demolist',
-      name: 'demolist',
-      component: demoList,
+      name: 'DemoList',
+      component: DemoList,
     },
     {
       path: '/demo',
-      name: 'demo',
-      component: layout,
+      name: 'Demo',
+      component: Layout,
       children: [...DemoItemsRoute()],
     },
   ]

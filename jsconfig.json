@@ -5,7 +5,8 @@
       "@assets/*": ["./src/assets/*"],
       "@stores/*": ["./src/stores/*"],
       "@views/*": ["./src/views/*"],
-      "@router/*": ["./src/router/*"]
+      "@router/*": ["./src/router/*"],
+      "@styles/*": ["./src/styles/*"]
     }
   },
   "exclude": ["node_modules", "dist"]

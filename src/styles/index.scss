@@ -1,0 +1,5 @@
+// @forward 'variables.scss';
+// @forward 'common.scss';
+
+@use './_variables.scss' as *;
+@use './_common.scss' as *;

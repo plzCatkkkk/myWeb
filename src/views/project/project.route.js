@@ -1,11 +1,11 @@
-const projectPage = () => import('./index.vue')
+const ProjectPage = () => import('./index.vue')
 
 export function ProjectRoute() {
   return [
     {
       path: '/project',
-      name: 'project',
-      component: projectPage,
+      name: 'Project',
+      component: ProjectPage,
     },
   ]
 }

@@ -1,3 +1,7 @@
 <template>ProjectPage</template>
-<script setup></script>
+<script setup>
+defineComponent({
+  name: 'Project',
+})
+</script>
 <style lang="sass" scoped></style>

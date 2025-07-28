@@ -1,14 +1,15 @@
 <template>
   <div class="goBack"></div>
-  <div class="fullScreen">
+  <div class="fullscreen-background">
     <router-view />
   </div>
 </template>
+<script setup>
+defineComponent({
+  name: 'Demo',
+})
+</script>
 <style lang="scss" scoped>
-.fullScreen {
-  height: 100vh;
-  width: 100vw;
-}
 .goBack {
   position: fixed;
   top: 0;
