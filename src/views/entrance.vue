@@ -39,8 +39,8 @@ function getRotation(range, Offset, length) {
 const onMousemove = (e) => {
   const { offsetX, offsetY, target } = e
   const { width, height } = target.getBoundingClientRect()
-  const x = getRotation(range, offsetY, width)
-  const y = -getRotation(range, offsetX, height)
+  const x = getRotation(range, offsetY, height)
+  const y = -getRotation(range, offsetX, width)
   target.style.setProperty('--rotate-x', `${x}deg`)
   target.style.setProperty('--rotate-y', `${y}deg`)
 }
