@@ -20,7 +20,10 @@ const colCount = ref(0)
 // 记录每行写到第几个字
 const colNextIndexes = ref(null)
 
-// 绘制函数
+/**
+ * @method draw
+ * @description 绘制
+ */
 function draw() {
   ctx.value.fillStyle = 'rgba(250, 250, 250, 0.1)'
   ctx.value.fillRect(0, 0, canvasRef.value.width, canvasRef.value.height)
@@ -40,7 +43,7 @@ function draw() {
     }
   }
 }
-
+// 随机颜色列表（确保不要太丑）
 const colorList = [
   '#1E90FF',
   '#30D5C8',
@@ -53,11 +56,19 @@ const colorList = [
 ]
 
 // 随机颜色
+/**
+ * @method getRandomColor
+ * @description 获取随机颜色
+ * @return {string}
+ */
 function getRandomColor() {
   return colorList[Math.floor(Math.random() * colorList.length)]
 }
-
-// 随机字母
+/**
+ * @method getRandomLetter
+ * @description 获取随机字母
+ * @return {string}
+ */
 function getRandomLetter() {
   const alphabet = 'abcdefghijklmnopqrstuvwxyz'
   return alphabet[Math.floor(Math.random() * alphabet.length)]
@@ -89,6 +100,10 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
 })
 
+/**
+ * @method handleResize
+ * @description 监听窗口变化改变数据
+ */
 function handleResize() {
   canvasRef.value.width = window.innerWidth
   canvasRef.value.height = window.innerHeight

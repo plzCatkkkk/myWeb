@@ -1,12 +1,12 @@
-const Sketchpad = () => import('./sketchpad/index.vue')
+const SketchpadSimple = () => import('./sketchpad-simple/index.vue')
 const CodeRain = () => import('./codeRain/index.vue')
 
 export function DemoItemsRoute() {
   return [
     {
-      path: 'sketchpad',
-      name: 'Sketchpad',
-      component: Sketchpad,
+      path: 'sketchpad-simple',
+      name: 'SketchpadSimple',
+      component: SketchpadSimple,
     },
     {
       path: 'codeRain',
