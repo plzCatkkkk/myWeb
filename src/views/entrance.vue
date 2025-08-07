@@ -1,18 +1,20 @@
 <template>
   <div class="fullscreen-background waving-background flex-box">
     <!-- <div class="joker">我请问呢</div> -->
-    <div class="item-card" @mousemove.stop="onMousemove" @mouseleave="onMouseleave">
-      project
-      <div class="jump-icon" @click="goto('/project')">
-        <img src="@assets/icon/left-arrow.svg" alt="go to project" />
-      </div>
-    </div>
-    <div class="item-card" @mousemove.stop="onMousemove" @mouseleave="onMouseleave">
-      demo
-      <div class="jump-icon" @click="goto('/demolist')">
-        <img src="@assets/icon/right-arrow.svg" alt="go to demo" />
-      </div>
-    </div>
+    <com-active-card :range="range" shadow>
+      <template #content>
+        project
+        <div class="jump-icon" @click="goto('/project')">
+          <img src="@assets/icon/left-arrow.svg" alt="go to project" /></div
+      ></template>
+    </com-active-card>
+    <com-active-card :range="range" shadow>
+      <template #content>
+        demo
+        <div class="jump-icon" @click="goto('/demolist')">
+          <img src="@assets/icon/right-arrow.svg" alt="go to demo" /></div
+      ></template>
+    </com-active-card>
   </div>
 </template>
 <script setup>
@@ -26,28 +28,6 @@ const goto = (path) => {
 }
 
 const range = [-3, 3]
-/**
- * @method getRotation 获取旋转角度
- * @params range 旋转范围
- * @params Offset 鼠标偏移量
- * @params length 旋转元素宽度
- * @return 旋转角度
- */
-function getRotation(range, Offset, length) {
-  return ((range[1] - range[0]) / length) * Offset + range[0]
-}
-const onMousemove = (e) => {
-  const { offsetX, offsetY, target } = e
-  const { width, height } = target.getBoundingClientRect()
-  const x = getRotation(range, offsetY, height)
-  const y = -getRotation(range, offsetX, width)
-  target.style.setProperty('--rotate-x', `${x}deg`)
-  target.style.setProperty('--rotate-y', `${y}deg`)
-}
-const onMouseleave = (e) => {
-  e.target.style.setProperty('--rotate-x', '0deg')
-  e.target.style.setProperty('--rotate-y', '0deg')
-}
 </script>
 <style lang="scss" scoped>
 @keyframes rotation {
@@ -66,25 +46,15 @@ const onMouseleave = (e) => {
   box-sizing: border-box;
   gap: 50px;
   .item-card {
-    background-color: #fff;
     height: 60vh;
     width: 40vh;
     border-radius: 20px;
-    transition: 0.3s;
-    opacity: 0.8;
     font-size: 36px;
     display: flex;
     padding: 40px;
     font-weight: bold;
     color: rgb(50, 154, 156);
-    box-sizing: border-box;
     position: relative;
-    &:hover {
-      scale: 1.03;
-      opacity: 1;
-      box-shadow: 2px 4px 12px 2px rgba(29, 104, 161, 0.272);
-      transform: perspective(500px) rotateX(var(--rotate-x, 0deg)) rotateY(var(--rotate-y, 0deg));
-    }
     .jump-icon {
       cursor: pointer;
       position: absolute;
@@ -103,9 +73,6 @@ const onMouseleave = (e) => {
       transition: background 0.5s ease-out;
       img {
         scale: 0.9;
-      }
-      &:hover {
-        // animation: rotation 1s infinite ease-in-out;
       }
     }
     &:nth-child(1).jump-icon img {

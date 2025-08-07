@@ -24,6 +24,7 @@ export default defineConfig({
       '@views': resolve('src', 'views'),
       '@router': resolve('src', 'router'),
       '@styles': resolve('src', 'styles'),
+      '@components': resolve('src', 'components'),
       // '@': fileURLToPath(new URL('./src', import.meta.url)),
       // '@assets': fileURLToPath(new URL('./src/assets', import.meta.url)),
       // '@stores': fileURLToPath(new URL('./src/stores', import.meta.url)),
