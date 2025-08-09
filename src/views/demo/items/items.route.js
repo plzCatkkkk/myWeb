@@ -1,5 +1,6 @@
 const SketchpadSimple = () => import('./sketchpad-simple/index.vue')
 const CodeRain = () => import('./codeRain/index.vue')
+const StarrySky = () => import('./starry-sky/index.vue')
 const Test = () => import('./test/index.vue')
 
 export function DemoItemsRoute() {
@@ -13,6 +14,11 @@ export function DemoItemsRoute() {
       path: 'codeRain',
       name: 'CodeRain',
       component: CodeRain,
+    },
+    {
+      path: 'starrySky',
+      name: 'StarrySky',
+      component: StarrySky,
     },
     {
       path: 'test',
