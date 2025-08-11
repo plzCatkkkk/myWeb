@@ -2,13 +2,35 @@
   <div class="fullscreen-background waving-background">
     <div class="content">
       <h1 class="title">Demo</h1>
-      <div class="list-wrapper" ref="listWrapperRef">
-        <div class="list-content" ref="listContent">
-          <div class="list-item" @click="goto(item.path)" v-for="item in listData" :key="item.name">
+      <div class="list-wrapper" :class="{ 'not-visable': displayMode !== 1 }" ref="listWrapperRef">
+        <div class="list-content">
+          <div
+            class="list-item"
+            :title="item.name"
+            @click="goto(item.path)"
+            v-for="item in listData"
+            :key="item.index"
+            ref="listItemRefs"
+          >
             {{ item.name }}
           </div>
           <!-- <div class="list-item" v-for="item in 4" :key="item.index">{{ 123 }}</div> -->
         </div>
+      </div>
+      <div class="cards-wrapper" :class="{ 'not-visable': displayMode !== 2 }">
+        <com-active-card
+          v-for="item in listData"
+          :key="item.index"
+          ref="CardItemRefs"
+          @click="changeCurrentItem(item)"
+        >
+          <template #content>{{ item.name }}</template>
+        </com-active-card>
+      </div>
+    </div>
+    <div class="switch" @click="changeDisplayMode()">
+      <div class="switch-slider" :class="{ 'is-checked': displayMode !== 1 }">
+        <div class="virtual-icon"></div>
       </div>
     </div>
   </div>
@@ -26,9 +48,19 @@ const goto = (path) => {
   router.push('/demo/' + path)
 }
 
+const displayMode = ref(1) // 1: 列表模式 2: 卡片模式
+
+const changeDisplayMode = () => {
+  displayMode.value = displayMode.value === 1 ? 2 : 1
+}
+
 const listData = computed(() => DemoItemsRoute())
 
 const listWrapperRef = ref(null)
+const listItemRefs = ref([])
+const CardItemRefs = ref([])
+const curIndex = ref(1)
+
 const isOverflow = computed(() => {
   if (!listWrapperRef.value) return false
   return listWrapperRef.value?.scrollHeight > listWrapperRef.value?.clientHeight
@@ -57,8 +89,15 @@ onMounted(() => {
   }
   onUnmounted(() => observer.disconnect())
 })
+onBeforeMount(() => {
+  // someMethod()获取子元素方法
+  console.log(listItemRefs.value)
+})
 </script>
 <style lang="scss" scoped>
+.not-visable {
+  display: none !important;
+}
 .content {
   width: 80%;
   height: 100%;
@@ -120,10 +159,76 @@ onMounted(() => {
         -webkit-user-select: none; /* Safari/Chrome */
         -moz-user-select: none; /* Firefox */
         -ms-user-select: none; /* IE/Edge */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
         &:hover {
           opacity: 1;
         }
       }
+    }
+  }
+  .cards-wrapper {
+    width: 100vw;
+    height: calc(100vh - 130px);
+    position: fixed;
+    top: 130px;
+    left: 0;
+    display: flex;
+    .item-card {
+      border-radius: 20px;
+      height: 400px;
+      width: 300px;
+      margin: auto 0;
+    }
+  }
+}
+// 非常好看的按钮
+.switch {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  width: 80px;
+  height: 36px;
+  background-color: rgba(29, 104, 161, 0.1);
+  background-image: url('@assets/icon/list-white.svg'), url('@assets/icon/card-white.svg');
+  background-size:
+    24px 24px,
+    24px 24px;
+  background-position:
+    8px 6px,
+    48px 6px;
+  border-radius: 12px;
+  background-repeat: no-repeat;
+  &-slider {
+    width: 40px;
+    height: 100%;
+    background-color: #fff;
+    border-radius: inherit;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    &.is-checked {
+      transform: translateX(40px);
+      .virtual-icon {
+        left: -40px;
+      }
+    }
+    .virtual-icon {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 80px;
+      height: 36px;
+      background-image: url('@assets/icon/list-green.svg'), url('@assets/icon/card-green.svg');
+      background-size:
+        24px 24px,
+        24px 24px;
+      background-position:
+        8px 6px,
+        48px 6px;
+      background-repeat: no-repeat;
+      transition: all 0.3s ease;
     }
   }
 }

@@ -10,7 +10,7 @@ import AutoImport from 'unplugin-auto-import/vite'
 export default defineConfig({
   plugins: [
     vue(),
-    // vueDevTools(),
+    vueDevTools(),
     AutoImport({
       imports: ['vue', 'vue-router', 'pinia'],
       dts: true, // 生成类型声明文件
