@@ -7,17 +7,17 @@ export function DemoItemsRoute() {
   return [
     {
       path: 'sketchpad-simple',
-      name: 'SketchpadSimple',
+      name: 'Sketchpad Simple',
       component: SketchpadSimple,
     },
     {
       path: 'codeRain',
-      name: 'CodeRain',
+      name: 'Code Rain',
       component: CodeRain,
     },
     {
       path: 'starrySky',
-      name: 'StarrySky',
+      name: 'Starry Sky',
       component: StarrySky,
     },
     {

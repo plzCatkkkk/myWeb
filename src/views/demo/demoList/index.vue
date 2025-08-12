@@ -6,10 +6,10 @@
         <div class="list-content">
           <div
             class="list-item"
+            v-for="(item, index) in listData"
+            :key="index"
             :title="item.name"
             @click="goto(item.path)"
-            v-for="item in listData"
-            :key="item.index"
             ref="listItemRefs"
           >
             {{ item.name }}
@@ -19,13 +19,18 @@
       </div>
       <div class="cards-wrapper" :class="{ 'not-visable': displayMode !== 2 }">
         <com-active-card
-          v-for="item in listData"
-          :key="item.index"
-          ref="CardItemRefs"
+          v-for="(item, index) in listData"
+          :key="index"
+          ref="cardItemRefs"
+          :range="range"
+          :active="index === curIndex"
+          :enlarge="index === curIndex"
           @click="changeCurrentItem(item)"
         >
           <template #content>{{ item.name }}</template>
         </com-active-card>
+        <div style="top: -24px; position: absolute" @click="prevCard">{{ '<' }}</div>
+        <div style="top: -24px; position: absolute; right: 0" @click="nextCard">{{ '>' }}</div>
       </div>
     </div>
     <div class="switch" @click="changeDisplayMode()">
@@ -47,8 +52,7 @@ const router = useRouter()
 const goto = (path) => {
   router.push('/demo/' + path)
 }
-
-const displayMode = ref(1) // 1: 列表模式 2: 卡片模式
+const displayMode = ref(2) // 1: 列表模式 2: 卡片模式
 
 const changeDisplayMode = () => {
   displayMode.value = displayMode.value === 1 ? 2 : 1
@@ -58,8 +62,34 @@ const listData = computed(() => DemoItemsRoute())
 
 const listWrapperRef = ref(null)
 const listItemRefs = ref([])
-const CardItemRefs = ref([])
-const curIndex = ref(1)
+
+const range = ref([-3, 3])
+const cardItemRefs = ref([])
+const curIndex = ref(0)
+
+function updateCard() {
+  let dfv = 0
+  cardItemRefs.value[curIndex.value].setCardStyle('', 'none', 1, 1)
+  for (let i = curIndex.value + 1; i < cardItemRefs.value.length; i++) {
+    dfv++
+    cardItemRefs.value[i].setCardStyle(
+      `translateX(${dfv * 180 - dfv * 40}px) scale(${1 - dfv * 0.2}) perspective(20px) rotateY(-1deg)`,
+      `blur(${dfv * 2}px)`,
+      1 - dfv * 0.2,
+      -dfv,
+    )
+  }
+  dfv = 0
+  for (let i = curIndex.value - 1; i >= 0; i--) {
+    dfv++
+    cardItemRefs.value[i].setCardStyle(
+      `translateX(${-dfv * 180 + dfv * 40}px) scale(${1 - dfv * 0.2}) perspective(20px) rotateY(-1deg)`,
+      `blur(${dfv * 2}px)`,
+      1 - dfv * 0.2,
+      -dfv,
+    )
+  }
+}
 
 const isOverflow = computed(() => {
   if (!listWrapperRef.value) return false
@@ -75,6 +105,8 @@ watch(
 )
 // 监视元素变化实时判断滚动条悬浮状态
 onMounted(() => {
+  console.log(cardItemRefs.value)
+  updateCard()
   const observer = new ResizeObserver((entries) => {
     const entry = entries[0]
     // console.log('元素监视', entry.target.scrollHeight > entry.target.clientHeight)
@@ -89,10 +121,15 @@ onMounted(() => {
   }
   onUnmounted(() => observer.disconnect())
 })
-onBeforeMount(() => {
-  // someMethod()获取子元素方法
-  console.log(listItemRefs.value)
-})
+onBeforeMount(() => {})
+function prevCard() {
+  curIndex.value--
+  updateCard()
+}
+function nextCard() {
+  curIndex.value++
+  updateCard()
+}
 </script>
 <style lang="scss" scoped>
 .not-visable {
@@ -175,11 +212,20 @@ onBeforeMount(() => {
     top: 130px;
     left: 0;
     display: flex;
+    // position: relative;
     .item-card {
+      position: absolute;
       border-radius: 20px;
       height: 400px;
       width: 300px;
       margin: auto 0;
+      transition: all 0.5s ease-in-out;
+      left: calc(50% - 150px);
+      top: calc(50% - 200px);
+      font-size: 32px;
+      font-weight: bolder;
+      padding: 40px;
+      color: rgb(50, 154, 156);
     }
   }
 }
