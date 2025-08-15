@@ -25,12 +25,16 @@
           :range="range"
           :active="index === curIndex"
           :enlarge="index === curIndex"
-          @click="changeCurrentItem(item)"
+          @click="clickItem(index === curIndex, item.path)"
         >
           <template #content>{{ item.name }}</template>
         </com-active-card>
-        <div style="top: -24px; position: absolute" @click="prevCard">{{ '<' }}</div>
-        <div style="top: -24px; position: absolute; right: 0" @click="nextCard">{{ '>' }}</div>
+        <div class="button-prev" @click="prevCard">
+          {{ '<' }}
+        </div>
+        <div class="button-next" @click="nextCard">
+          {{ '>' }}
+        </div>
       </div>
     </div>
     <div class="switch" @click="changeDisplayMode()">
@@ -73,7 +77,7 @@ function updateCard() {
   for (let i = curIndex.value + 1; i < cardItemRefs.value.length; i++) {
     dfv++
     cardItemRefs.value[i].setCardStyle(
-      `translateX(${dfv * 180 - dfv * 40}px) scale(${1 - dfv * 0.2}) perspective(20px) rotateY(-1deg)`,
+      `translateX(${dfv * 180 - dfv ** 2 * 15}px) scale(${1 - dfv * 0.2}) perspective(20px) rotateY(-1deg)`,
       `blur(${dfv * 2}px)`,
       1 - dfv * 0.2,
       -dfv,
@@ -83,7 +87,7 @@ function updateCard() {
   for (let i = curIndex.value - 1; i >= 0; i--) {
     dfv++
     cardItemRefs.value[i].setCardStyle(
-      `translateX(${-dfv * 180 + dfv * 40}px) scale(${1 - dfv * 0.2}) perspective(20px) rotateY(-1deg)`,
+      `translateX(${-dfv * 180 + dfv ** 2 * 15}px) scale(${1 - dfv * 0.2}) perspective(20px) rotateY(-1deg)`,
       `blur(${dfv * 2}px)`,
       1 - dfv * 0.2,
       -dfv,
@@ -129,6 +133,15 @@ function prevCard() {
 function nextCard() {
   curIndex.value++
   updateCard()
+}
+/**
+ * 点击卡片
+ * @param {boolean} isActive 是否可用
+ * @param {string} path 路由地址
+ */
+function clickItem(isActive, path) {
+  if (!isActive) return
+  goto(path)
 }
 </script>
 <style lang="scss" scoped>
@@ -226,6 +239,25 @@ function nextCard() {
       font-weight: bolder;
       padding: 40px;
       color: rgb(50, 154, 156);
+    }
+    .button {
+      &-prev,
+      &-next {
+        cursor: pointer;
+        position: absolute;
+        left: 40px;
+        width: 40px;
+        height: 40px;
+        top: calc(50% - 20px);
+        font-size: 56px;
+        font-weight: bolder;
+        color: #ffffff;
+        transform: scaleY(1.5);
+      }
+      &-next {
+        left: auto;
+        right: 40px;
+      }
     }
   }
 }
