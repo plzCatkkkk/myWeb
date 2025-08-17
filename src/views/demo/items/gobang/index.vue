@@ -14,9 +14,10 @@
               t: xIndex === 0,
               r: yIndex === 14,
             }"
+            @click="dropPoint(xIndex, yIndex)"
           >
-            <div class="gobang-stone black" v-if="cell === '0'"></div>
-            <div class="gobang-stone white" v-if="cell === '1'"></div>
+            <div class="gobang-stone black" v-if="cell === 0"></div>
+            <div class="gobang-stone white" v-if="cell === 1"></div>
           </div>
         </div>
       </div>
@@ -25,14 +26,109 @@
   </div>
 </template>
 <script setup>
+import cloneDeep from 'lodash/cloneDeep'
 defineComponent({
   name: 'Gobang',
 })
 
 const chessboardData = ref([])
-chessboardData.value = Array.from({ length: 15 }, () => Array(15).fill('')) //初始化棋盘
-chessboardData.value[2][7] = '1'
-chessboardData.value[2][6] = '0'
+chessboardData.value = Array.from({ length: 15 }, () => Array(15).fill('*')) //初始化棋盘
+
+const curFlag = ref(0) // 0:黑 1:白
+
+/**
+ * @method dropPoint 落子方法
+ * @param {number} xIndex x坐标
+ * @param {number} yIndex y坐标
+ */
+function dropPoint(xIndex, yIndex) {
+  if (chessboardData.value[xIndex][yIndex] !== '*') return
+  chessboardData.value[xIndex][yIndex] = curFlag.value
+  if (isWin(curFlag.value)) {
+    console.log('恭喜你，你赢了')
+    return
+  } else {
+    curFlag.value = curFlag.value === 0 ? 1 : 0
+  }
+}
+/**
+ * @method 判断战况
+ * @param {number} flag 0:黑 1:白
+ * @return {boolean} 是否胜利
+ */
+function isWin(flag) {
+  return getAllBoardArray().some((row) => {
+    return hasSeriesPoint(row, flag)
+  })
+}
+// 没苦硬吃的写法hhhh
+/**
+ * @generator 每行的生成器
+ */
+function* rowGenerator(array) {
+  for (var i = 0; i < array.length; i++) {
+    yield array[i]
+  }
+  yield
+}
+/**
+ * @method获取对角线数组
+ * @param {number} direction 方向  0: 左上到右下方向  1: 右上到左下方向
+ * @returns {Array} 对角线数组
+ */
+function getCrossArray(direction) {
+  let result = []
+  let tempData = cloneDeep(chessboardData.value)
+  if (!direction) {
+    tempData.reverse()
+  }
+  let dataRowGnrt = tempData.map((item, index) => {
+    return rowGenerator(item)
+  })
+
+  for (let i = 0; i < 29; i++) {
+    let tempArray = []
+    for (let j = 0; j <= i; j++) {
+      tempArray.push(dataRowGnrt[j > 14 ? j - 14 : j].next())
+    }
+    result.push(
+      tempArray.map((item) => {
+        return item.value === undefined ? '' : item.value
+      }),
+    )
+  }
+  console.log(result)
+  return result
+}
+/**
+ * @method 获取所有行
+ * @returns {Array} 所有行包括对角数组
+ */
+function getAllBoardArray() {
+  let allRowArray = []
+  let allColumnArray = []
+  let allCrossArray = []
+  allRowArray = chessboardData.value
+  for (let i = 0; i < 15; i++) {
+    allColumnArray.push(chessboardData.value.map((item) => item[i]))
+  }
+  allCrossArray = [...getCrossArray(0), ...getCrossArray(1)]
+  return [...allRowArray, ...allColumnArray, ...allCrossArray]
+}
+/**
+ * @method 判断连线
+ * @param {Array} pointArray 行索引
+ * @param {number} flag 棋子颜色
+ * @return {boolean} 是否连线
+ */
+function hasSeriesPoint(pointArray, flag) {
+  if (pointArray.join('').includes(String(flag).repeat(5))) {
+    console.log(pointArray.join(''))
+    return true
+  } else {
+    return false
+  }
+}
 </script>
 <style lang="scss" scoped>
 $--board-size: calc(100vmin - 80px);
