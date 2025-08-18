@@ -2,7 +2,7 @@
   <div class="fullscreen-background custom">
     <div class="player"></div>
     <div class="gobang-container">
-      <div class="gobang-board">
+      <div class="gobang-board" @mouseleave="curHover = [null, null]">
         <div class="gobang-row" v-for="(row, xIndex) in chessboardData" :key="xIndex">
           <div
             class="gobang-cell normal"
@@ -14,10 +14,26 @@
               t: xIndex === 0,
               r: yIndex === 14,
             }"
+            ref="cellRefs"
             @click="dropPoint(xIndex, yIndex)"
+            @mouseenter="changeHover(xIndex, yIndex)"
           >
-            <div class="gobang-stone black" v-if="cell === 0"></div>
-            <div class="gobang-stone white" v-if="cell === 1"></div>
+            <div
+              class="gobang-stone"
+              :class="{
+                black: cell === 0,
+                white: cell === 1,
+              }"
+              v-if="cell !== '*'"
+            ></div>
+            <div
+              class="gobang-stone virtual"
+              :class="{
+                black: curFlag === 0,
+                white: curFlag === 1,
+              }"
+              v-if="curHover[0] === xIndex && curHover[1] === yIndex"
+            ></div>
           </div>
         </div>
       </div>
@@ -35,6 +51,15 @@ const chessboardData = ref([])
 chessboardData.value = Array.from({ length: 15 }, () => Array(15).fill('*')) //初始化棋盘
 
 const curFlag = ref(0) // 0:黑 1:白
+const curHover = ref([null, null])
+
+const changeHover = (xIndex, yIndex) => {
+  if (chessboardData.value[xIndex][yIndex] !== '*') {
+    curHover.value = [null, null]
+    return
+  }
+  curHover.value = [xIndex, yIndex]
+}
 
 /**
  * @method dropPoint 落子方法
@@ -44,6 +69,7 @@ const curFlag = ref(0) // 0:黑 1:白
 function dropPoint(xIndex, yIndex) {
   if (chessboardData.value[xIndex][yIndex] !== '*') return
   chessboardData.value[xIndex][yIndex] = curFlag.value
+  curHover.value = [null, null]
   if (isWin(curFlag.value)) {
     console.log('恭喜你，你赢了')
     return
@@ -97,7 +123,6 @@ function getCrossArray(direction) {
       }),
     )
   }
-  console.log(result)
   return result
 }
 /**
@@ -123,7 +148,6 @@ function getAllBoardArray() {
  */
 function hasSeriesPoint(pointArray, flag) {
   if (pointArray.join('').includes(String(flag).repeat(5))) {
-    console.log(pointArray.join(''))
     return true
   } else {
     return false
@@ -144,6 +168,8 @@ $--cell-size-half: calc($--cell-size / 2);
     justify-content: center;
     align-items: center;
     background-color: #ffffff;
+    // background-color: #dcb385;
+    position: relative;
   }
   &-board {
     width: $--board-size;
@@ -161,8 +187,8 @@ $--cell-size-half: calc($--cell-size / 2);
       background-color: #4f3c30;
       position: absolute;
       display: block;
-      height: 6px;
-      width: 6px;
+      height: 0.5vmax;
+      width: 0.5vmax;
       border-radius: 50%;
       left: 50%;
       top: 50%;
@@ -261,18 +287,26 @@ $--cell-size-half: calc($--cell-size / 2);
         $--box-shadow,
         inset -2px -2px 8px 2px rgba(0, 0, 0, 0.253);
     }
+    &.virtual {
+      opacity: 0.5;
+    }
   }
 }
 .custom {
   display: flex;
   .player {
-    // background-color: #6c5c5c;
     flex: 1;
+    &:nth-child(1) {
+      background-color: #3f72af;
+    }
+    &:nth-child(3) {
+      background-color: #88304e;
+    }
   }
 }
 @media (max-width: 1200px) {
   .player {
-    display: none;
+    // display: none;
   }
 }
 </style>
