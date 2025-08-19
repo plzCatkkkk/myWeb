@@ -1,7 +1,20 @@
 <template>
-  <div class="fullscreen-background custom">
-    <div class="player"></div>
+  <div
+    class="fullscreen-background custom"
+    :class="{
+      center: layout === 1,
+      leftAndRight: layout === 2,
+    }"
+  >
+    <div class="player">
+      <div class="stone-type1 black"></div>
+      <div class="player1"><cbt></cbt></div>
+    </div>
     <div class="gobang-container">
+      <div class="slot">
+        <span @click="layout = 1">布局1</span>
+        <span @click="layout = 2">布局2</span>
+      </div>
       <div class="gobang-board" @mouseleave="curHover = [null, null]">
         <div class="gobang-row" v-for="(row, xIndex) in chessboardData" :key="xIndex">
           <div
@@ -38,18 +51,26 @@
         </div>
       </div>
     </div>
-    <div class="player"></div>
+    <div class="player">
+      <div class="stone-type2 white"></div>
+      <div class="player2"><yj></yj></div>
+    </div>
   </div>
 </template>
 <script setup>
+import cbt from './player/cbt/index.vue'
+import yj from './player/yj/index.vue'
 import cloneDeep from 'lodash/cloneDeep'
 defineComponent({
   name: 'Gobang',
 })
 
+const layout = ref(1) //1：棋盘居中布局 2：人物棋盘左右布局
+
 const chessboardData = ref([])
 chessboardData.value = Array.from({ length: 15 }, () => Array(15).fill('*')) //初始化棋盘
 
+const isEnd = ref(false)
 const curFlag = ref(0) // 0:黑 1:白
 const curHover = ref([null, null])
 
@@ -67,11 +88,13 @@ const changeHover = (xIndex, yIndex) => {
  * @param {number} yIndex y坐标
  */
 function dropPoint(xIndex, yIndex) {
+  if (isEnd.value) return
   if (chessboardData.value[xIndex][yIndex] !== '*') return
   chessboardData.value[xIndex][yIndex] = curFlag.value
   curHover.value = [null, null]
   if (isWin(curFlag.value)) {
     console.log('恭喜你，你赢了')
+    isEnd.value = true
     return
   } else {
     curFlag.value = curFlag.value === 0 ? 1 : 0
@@ -168,8 +191,20 @@ $--cell-size-half: calc($--cell-size / 2);
     justify-content: center;
     align-items: center;
     background-color: #ffffff;
-    // background-color: #dcb385;
     position: relative;
+    // 临时按键插槽
+    .slot {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 40px;
+      width: 100%;
+      span {
+        display: inline-block;
+        padding: 8px;
+        @extend .cur-pointer;
+      }
+    }
   }
   &-board {
     width: $--board-size;
@@ -292,10 +327,144 @@ $--cell-size-half: calc($--cell-size / 2);
     }
   }
 }
+@mixin stone-type-left($color, $text) {
+  margin: 6px;
+  &::after {
+    content: $text;
+    display: inline-block;
+    font-size: larger;
+    color: $color;
+  }
+  &::before {
+    content: '';
+    display: inline-block;
+    background-color: $color;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    transform: translateY(2px);
+    margin: 0 5px;
+  }
+}
+@mixin stone-type-right($color, $text) {
+  margin: 6px;
+  &::after {
+    content: '';
+    display: inline-block;
+    background-color: $color;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    transform: translateY(2px);
+    margin: 0 5px;
+  }
+  &::before {
+    content: $text;
+    display: inline-block;
+    font-size: larger;
+    color: $color;
+  }
+}
 .custom {
-  display: flex;
+  &.leftAndRight {
+    .player {
+      float: left;
+      height: 50vh;
+      width: calc(100vw - $--board-size);
+      position: relative;
+      .stone-type1 {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        &.white {
+          @include stone-type-right(white, '白棋');
+        }
+        &.black {
+          @include stone-type-right(black, '黑棋');
+        }
+      }
+      .stone-type2 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        &.white {
+          @include stone-type-left(white, '白棋');
+        }
+        &.black {
+          @include stone-type-left(black, '黑棋');
+        }
+      }
+      &1 {
+        // 阻止元素事件
+        pointer-events: none;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        z-index: 1;
+      }
+      &2 {
+        // 阻止元素事件
+        pointer-events: none;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        z-index: 1;
+      }
+    }
+    .gobang-container {
+      float: right;
+    }
+  }
+  &.center {
+    .player {
+      float: left;
+      height: 100vh;
+      width: calc(50vw - $--board-size/2);
+      position: relative;
+      .stone-type1 {
+        position: absolute;
+        top: 0;
+        right: 0;
+        &.white {
+          @include stone-type-right(white, '白棋');
+        }
+        &.black {
+          @include stone-type-right(black, '黑棋');
+        }
+      }
+      .stone-type2 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        &.white {
+          @include stone-type-left(white, '白棋');
+        }
+        &.black {
+          @include stone-type-left(black, '黑棋');
+        }
+      }
+      &1 {
+        // 阻止元素事件
+        pointer-events: none;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        z-index: 1;
+      }
+      &2 {
+        // 阻止元素事件
+        pointer-events: none;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        z-index: 1;
+      }
+    }
+    .gobang-container {
+      float: left;
+    }
+  }
   .player {
-    flex: 1;
     &:nth-child(1) {
       background-color: #3f72af;
     }

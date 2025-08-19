@@ -203,15 +203,10 @@ function clickItem(isActive, path) {
         height: 60px;
         box-shadow: 0px 2px 6px 0px rgba(29, 104, 161, 0.272);
         transition: all 0.3s ease-in-out;
-        cursor: pointer;
-        // 禁止用户选中文字
-        user-select: none; /* 标准属性 */
-        -webkit-user-select: none; /* Safari/Chrome */
-        -moz-user-select: none; /* Firefox */
-        -ms-user-select: none; /* IE/Edge */
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        @extend .cur-pointer;
         &:hover {
           opacity: 1;
         }
@@ -239,11 +234,12 @@ function clickItem(isActive, path) {
       font-weight: bolder;
       padding: 40px;
       color: rgb(50, 154, 156);
+      @extend .cur-pointer;
     }
     .button {
       &-prev,
       &-next {
-        cursor: pointer;
+        @extend .cur-pointer;
         position: absolute;
         left: 40px;
         width: 40px;

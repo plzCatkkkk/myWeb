@@ -96,3 +96,12 @@
   background-repeat: no-repeat;
   animation: 10s movement linear infinite;
 }
+
+.cur-pointer {
+  cursor: pointer;
+  // 禁止用户选中文字
+  user-select: none; /* 标准属性 */
+  -webkit-user-select: none; /* Safari/Chrome */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE/Edge */
+}
