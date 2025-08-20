@@ -17,10 +17,17 @@ const props = defineProps({
     type: Number,
     default: 1, //1.waiting  2.thinking 3.win 4.fail
   },
+  isEnd: {
+    type: Boolean,
+    default: false,
+  },
 })
-const containerStyle = ref({
-  backgroundImage: `url(${cbtWaiting})`,
-})
+
+const currentImg = ref(cbtWaiting)
+
+const containerStyle = computed(() => ({
+  backgroundImage: `url(${currentImg.value})`,
+}))
 
 const defaultImg = computed(() => {
   switch (props.state) {
@@ -33,9 +40,32 @@ const defaultImg = computed(() => {
   }
 })
 
+function reset() {
+  currentImg.value = defaultImg.value
+}
+
+function objection() {
+  currentImg.value = cbtObjecting
+  setTimeout(() => {
+    if (!props.isEnd) {
+      reset()
+    }
+  }, 1700)
+}
+
+function win() {
+  currentImg.value = Math.random() > 0.5 ? cbtWin1 : cbtWin2
+}
+
+function fail() {
+  currentImg.value = Math.random() > 0.5 ? cbtFail1 : cbtFail2
+}
+
 onMounted(() => {
-  // img.value = cbtWaiting
+  reset()
 })
+
+defineExpose({ objection, reset, win, fail })
 </script>
 <style lang="scss" scoped>
 .container {

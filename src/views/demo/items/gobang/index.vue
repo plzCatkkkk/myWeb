@@ -7,13 +7,20 @@
     }"
   >
     <div class="player">
-      <div class="stone-type1 black"></div>
-      <div class="player1"><cbt></cbt></div>
+      <div class="stone-type1" :class="{ black: pfMap[1] === 0, white: pfMap[1] === 1 }"></div>
+      <div class="player1">
+        <cbt
+          ref="cbtRef"
+          :isEnd="isEnd"
+          :state="isEnd ? (curFlag === pfMap[1] ? 3 : 4) : curFlag === pfMap[1] ? 2 : 1"
+        ></cbt>
+      </div>
     </div>
     <div class="gobang-container">
       <div class="slot">
         <span @click="layout = 1">布局1</span>
         <span @click="layout = 2">布局2</span>
+        <span @click="reset">重开</span>
       </div>
       <div class="gobang-board" @mouseleave="curHover = [null, null]">
         <div class="gobang-row" v-for="(row, xIndex) in chessboardData" :key="xIndex">
@@ -52,8 +59,14 @@
       </div>
     </div>
     <div class="player">
-      <div class="stone-type2 white"></div>
-      <div class="player2"><yj></yj></div>
+      <div class="stone-type2" :class="{ black: pfMap[2] === 0, white: pfMap[2] === 1 }"></div>
+      <div class="player2">
+        <yj
+          ref="yjRef"
+          :isEnd="isEnd"
+          :state="isEnd ? (curFlag === pfMap[2] ? 3 : 4) : curFlag === pfMap[2] ? 2 : 1"
+        ></yj>
+      </div>
     </div>
   </div>
 </template>
@@ -65,10 +78,18 @@ defineComponent({
   name: 'Gobang',
 })
 
+const cbtRef = ref(null)
+const yjRef = ref(null)
+
 const layout = ref(1) //1：棋盘居中布局 2：人物棋盘左右布局
 
 const chessboardData = ref([])
 chessboardData.value = Array.from({ length: 15 }, () => Array(15).fill('*')) //初始化棋盘
+
+const pfMap = ref({
+  1: 0,
+  2: 1,
+})
 
 const isEnd = ref(false)
 const curFlag = ref(0) // 0:黑 1:白
@@ -87,17 +108,34 @@ const changeHover = (xIndex, yIndex) => {
  * @param {number} xIndex x坐标
  * @param {number} yIndex y坐标
  */
-function dropPoint(xIndex, yIndex) {
+async function dropPoint(xIndex, yIndex) {
   if (isEnd.value) return
   if (chessboardData.value[xIndex][yIndex] !== '*') return
   chessboardData.value[xIndex][yIndex] = curFlag.value
   curHover.value = [null, null]
   if (isWin(curFlag.value)) {
-    console.log('恭喜你，你赢了')
+    // 结束
     isEnd.value = true
-    return
+    if (curFlag.value == pfMap.value[1]) {
+      cbtRef.value.win()
+      yjRef.value.fail()
+    } else {
+      cbtRef.value.fail()
+      yjRef.value.win()
+    }
   } else {
-    curFlag.value = curFlag.value === 0 ? 1 : 0
+    // 继续
+    if (curFlag.value == pfMap.value[1]) {
+      cbtRef.value.objection()
+      curFlag.value = curFlag.value === 0 ? 1 : 0
+      await nextTick()
+      yjRef.value.reset()
+    } else {
+      yjRef.value.objection()
+      curFlag.value = curFlag.value === 0 ? 1 : 0
+      await nextTick()
+      cbtRef.value.reset()
+    }
   }
 }
 /**
@@ -175,6 +213,15 @@ function hasSeriesPoint(pointArray, flag) {
   } else {
     return false
   }
+}
+
+async function reset() {
+  isEnd.value = false
+  curFlag.value = 0
+  chessboardData.value = Array.from({ length: 15 }, () => Array(15).fill('*'))
+  await nextTick()
+  yjRef.value.reset()
+  cbtRef.value.reset()
 }
 </script>
 <style lang="scss" scoped>
