@@ -5,6 +5,7 @@
 import cbtWaiting from './cbt-waiting.gif'
 import cbtThinking from './cbt-thinking.gif'
 import cbtObjecting from './cbt-objecting.gif'
+import cbtObjection2 from './cbt-objection2.gif'
 import cbtWin1 from './cbt-win1.gif'
 import cbtWin2 from './cbt-win2.gif'
 import cbtFail1 from './cbt-fail1.gif'
@@ -45,7 +46,7 @@ function reset() {
 }
 
 function objection() {
-  currentImg.value = cbtObjecting
+  currentImg.value = Math.random() > 0.5 ? cbtObjecting : cbtObjection2
   setTimeout(() => {
     if (!props.isEnd) {
       reset()

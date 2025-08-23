@@ -18,9 +18,10 @@
     </div>
     <div class="gobang-container">
       <div class="slot">
-        <span @click="layout = 1">布局1</span>
-        <span @click="layout = 2">布局2</span>
-        <span @click="reset">重开</span>
+        <span class="custom-button-cbt" @click="layout = 1" v-if="layout !== 1">布局1</span>
+        <span class="custom-button-cbt" @click="layout = 2" v-else>布局2</span>
+        <span class="custom-button-yj" @click="openRuleDialog">RIF规则</span>
+        <span class="custom-button-cbt" @click="reset">重开</span>
       </div>
       <div class="gobang-board" @mouseleave="curHover = [null, null]">
         <div class="gobang-row" v-for="(row, xIndex) in chessboardData" :key="xIndex">
@@ -68,12 +69,14 @@
         ></yj>
       </div>
     </div>
+    <dialog-rif-rule v-model:visible="ruleDialogVisible" @updata="changeRule()"></dialog-rif-rule>
   </div>
 </template>
 <script setup>
 import cbt from './player/cbt/index.vue'
 import yj from './player/yj/index.vue'
 import cloneDeep from 'lodash/cloneDeep'
+import dialogRifRule from './dialog-rif-rule.vue'
 defineComponent({
   name: 'Gobang',
 })
@@ -223,6 +226,12 @@ async function reset() {
   yjRef.value.reset()
   cbtRef.value.reset()
 }
+
+const ruleDialogVisible = ref(false)
+function openRuleDialog() {
+  ruleDialogVisible.value = true
+}
+function changeRule() {}
 </script>
 <style lang="scss" scoped>
 $--board-size: calc(100vmin - 80px);

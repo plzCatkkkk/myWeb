@@ -5,6 +5,7 @@
 import yjWaiting from './yj-waiting.gif'
 import yjThinking from './yj-thinking.gif'
 import yjObjection from './yj-objection.gif'
+import yjObjection2 from './yj-objection2.gif'
 import yjWin1 from './yj-win1.gif'
 import yjWin2a from './yj-win2a.gif'
 import yjWin2b from './yj-win2b.gif'
@@ -38,7 +39,7 @@ const defaultImg = computed(() => {
 })
 
 function objection() {
-  currentImg.value = yjObjection
+  currentImg.value = Math.random() > 0.5 ? yjObjection : yjObjection2
   setTimeout(() => {
     if (!props.isEnd) {
       reset()

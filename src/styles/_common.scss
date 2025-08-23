@@ -1,4 +1,5 @@
 // 公共样式
+@use 'sass:color';
 
 @keyframes movement {
   0%,
@@ -104,4 +105,25 @@
   -webkit-user-select: none; /* Safari/Chrome */
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE/Edge */
+}
+
+@mixin custom-button($color) {
+  color: $color;
+  font-weight: bold;
+  &:hover {
+    color: color.mix(white, $color, 30%);
+  }
+  &:active {
+    color: color.mix(rgb(0, 0, 0), $color, 10%);
+  }
+  &:focus {
+    color: color.mix(white, $color, 30%);
+  }
+}
+
+.custom-button-cbt {
+  @include custom-button(#3a89ea);
+}
+.custom-button-yj {
+  @include custom-button(#c93d6c);
 }
