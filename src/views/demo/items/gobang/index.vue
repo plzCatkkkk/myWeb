@@ -77,9 +77,12 @@ import cbt from './player/cbt/index.vue'
 import yj from './player/yj/index.vue'
 import cloneDeep from 'lodash/cloneDeep'
 import dialogRifRule from './dialog-rif-rule.vue'
+import useDemoDataStore from '@stores/demo-data'
 defineComponent({
   name: 'Gobang',
 })
+
+const gobangRule = computed(() => useDemoDataStore().getGobang())
 
 const cbtRef = ref(null)
 const yjRef = ref(null)
@@ -89,11 +92,47 @@ const layout = ref(1) //1：棋盘居中布局 2：人物棋盘左右布局
 const chessboardData = ref([])
 chessboardData.value = Array.from({ length: 15 }, () => Array(15).fill('*')) //初始化棋盘
 
+// 玩家棋子映射，键对应玩家，值对应棋子
 const pfMap = ref({
   1: 0,
   2: 1,
 })
 
+// 开局规则落子范围map，键对应回合，值对应落子范围
+const startMap = ref({
+  1: [[7, 7]],
+  2: [
+    [6, 6],
+    [6, 7],
+    [6, 8],
+    [7, 6],
+    [7, 8],
+    [8, 6],
+    [8, 7],
+    [8, 8],
+  ],
+})
+startMap.value[3] = [
+  ...startMap.value[2],
+  [5, 5],
+  [5, 6],
+  [5, 7],
+  [5, 8],
+  [5, 9],
+  [6, 5],
+  [6, 9],
+  [7, 5],
+  [7, 9],
+  [8, 5],
+  [8, 9],
+  [9, 5],
+  [9, 6],
+  [9, 7],
+  [9, 8],
+  [9, 9],
+]
+
+const round = ref(1) //第几手
 const isEnd = ref(false)
 const curFlag = ref(0) // 0:黑 1:白
 const curHover = ref([null, null])
@@ -102,6 +141,18 @@ const changeHover = (xIndex, yIndex) => {
   if (chessboardData.value[xIndex][yIndex] !== '*') {
     curHover.value = [null, null]
     return
+  }
+  if (gobangRule.value.rifOpen) {
+    // 进入开局规则
+    if (
+      round.value < 4 &&
+      !startMap.value[round.value].some((item) => {
+        return item[0] == xIndex && item[1] == yIndex
+      })
+    ) {
+      curHover.value = [null, null]
+      return
+    }
   }
   curHover.value = [xIndex, yIndex]
 }
@@ -112,9 +163,23 @@ const changeHover = (xIndex, yIndex) => {
  * @param {number} yIndex y坐标
  */
 async function dropPoint(xIndex, yIndex) {
+  // 判断是否结束
   if (isEnd.value) return
+  // 判断是否已落子
   if (chessboardData.value[xIndex][yIndex] !== '*') return
+  // 判断开局规则条件
+  if (gobangRule.value.rifOpen) {
+    if (
+      round.value < 4 &&
+      !startMap.value[round.value].some((item) => {
+        return item[0] == xIndex && item[1] == yIndex
+      })
+    ) {
+      return
+    }
+  }
   chessboardData.value[xIndex][yIndex] = curFlag.value
+  round.value++
   curHover.value = [null, null]
   if (isWin(curFlag.value)) {
     // 结束
@@ -221,6 +286,7 @@ function hasSeriesPoint(pointArray, flag) {
 async function reset() {
   isEnd.value = false
   curFlag.value = 0
+  round.value = 1
   chessboardData.value = Array.from({ length: 15 }, () => Array(15).fill('*'))
   await nextTick()
   yjRef.value.reset()
@@ -231,7 +297,9 @@ const ruleDialogVisible = ref(false)
 function openRuleDialog() {
   ruleDialogVisible.value = true
 }
-function changeRule() {}
+function changeRule() {
+  reset()
+}
 </script>
 <style lang="scss" scoped>
 $--board-size: calc(100vmin - 80px);
