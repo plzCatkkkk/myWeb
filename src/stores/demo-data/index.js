@@ -24,7 +24,7 @@ const useDemoDataStore = defineStore('demo-data', {
     setDefaultGobang() {
       this.gobang = {
         rifOpen: false, //开启RIF开局规则
-        threeRoundsExchange: false, //三手交换
+        threeRoundsExchange: false, //三手可交换
         fiveRoundsTwoDrop: false, //五手两打
         blackForbidden: false, //禁手
       }

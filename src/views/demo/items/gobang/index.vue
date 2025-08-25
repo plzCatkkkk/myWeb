@@ -8,6 +8,7 @@
   >
     <div class="player">
       <div class="stone-type1" :class="{ black: pfMap[1] === 0, white: pfMap[1] === 1 }"></div>
+      <div class="button-group"></div>
       <div class="player1">
         <cbt
           ref="cbtRef"
@@ -61,6 +62,15 @@
     </div>
     <div class="player">
       <div class="stone-type2" :class="{ black: pfMap[2] === 0, white: pfMap[2] === 1 }"></div>
+      <div class="button-group">
+        <el-button
+          color="#3f72af"
+          plain
+          v-if="round === 4 && !hasExchange && gobangRule.threeRoundsExchange && gobangRule.rifOpen"
+          @click="exchange"
+          >交换</el-button
+        >
+      </div>
       <div class="player2">
         <yj
           ref="yjRef"
@@ -285,6 +295,9 @@ function hasSeriesPoint(pointArray, flag) {
 
 async function reset() {
   isEnd.value = false
+  if (hasExchange.value) {
+    exchange()
+  }
   curFlag.value = 0
   round.value = 1
   chessboardData.value = Array.from({ length: 15 }, () => Array(15).fill('*'))
@@ -300,8 +313,18 @@ function openRuleDialog() {
 function changeRule() {
   reset()
 }
+const hasExchange = ref(false)
+async function exchange() {
+  hasExchange.value = !hasExchange.value
+  pfMap.value[1] === 0 ? (pfMap.value[1] = 1) : (pfMap.value[1] = 0)
+  pfMap.value[2] === 0 ? (pfMap.value[2] = 1) : (pfMap.value[2] = 0)
+  await nextTick()
+  yjRef.value.reset()
+  cbtRef.value.reset()
+}
 </script>
 <style lang="scss" scoped>
+// 屁股一坐就是想怎么实现功能，已经尽可能美观了
 $--board-size: calc(100vmin - 80px);
 $--cell-size: calc((100vmin - 100px) / 15);
 $--cell-size-half: calc($--cell-size / 2);
@@ -583,6 +606,19 @@ $--cell-size-half: calc($--cell-size / 2);
         right: 0;
         z-index: 1;
       }
+      .button-group {
+        display: flex;
+        width: calc(100% - 80px);
+        height: 70%;
+        align-items: center;
+        margin: auto;
+        justify-content: center;
+        :deep {
+          .el-button {
+            width: 100%;
+          }
+        }
+      }
     }
     .gobang-container {
       float: left;
@@ -599,7 +635,6 @@ $--cell-size-half: calc($--cell-size / 2);
 }
 @media (max-width: 1200px) {
   .player {
-    // display: none;
   }
 }
 </style>

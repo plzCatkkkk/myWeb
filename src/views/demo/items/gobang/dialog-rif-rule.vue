@@ -6,7 +6,7 @@
         v-if="ruleData.rifOpen"
         class="checkbox-yj"
         v-model="ruleData.threeRoundsExchange"
-        label="启用三手交换"
+        label="启用三手可交换"
       />
       <el-checkbox
         v-if="ruleData.rifOpen"
@@ -23,7 +23,7 @@
     </div>
     <template #footer>
       <el-button color="#3f72af" plain @click="dialogVisible = false">取消</el-button>
-      <el-button color="#88304e" plain @click="changeRule">确认</el-button>
+      <el-button color="#88304e" plain @click="changeRule">确认并重开</el-button>
     </template>
   </el-dialog>
 </template>
