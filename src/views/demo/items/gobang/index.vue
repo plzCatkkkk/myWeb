@@ -8,7 +8,35 @@
   >
     <div class="player">
       <div class="stone-type1" :class="{ black: pfMap[1] === 0, white: pfMap[1] === 1 }"></div>
-      <div class="button-group"></div>
+      <div class="button-group">
+        <el-button
+          color="#88304e"
+          plain
+          v-if="
+            round === 5 &&
+            pfMap[1] == 1 &&
+            gobangRule.rifOpen &&
+            gobangRule.fiveRoundsTwoDrop &&
+            canBeReport === true
+          "
+          @click="reportDrop"
+          >无效落子</el-button
+        >
+        <el-button
+          color="#88304e"
+          plain
+          v-if="
+            round === 5 &&
+            pfMap[1] == 0 &&
+            gobangRule.rifOpen &&
+            gobangRule.fiveRoundsTwoDrop &&
+            canBeReport === false &&
+            backPoint.length === 2
+          "
+          @click="canBeReport = true"
+          >完成打点</el-button
+        >
+      </div>
       <div class="player1">
         <cbt
           ref="cbtRef"
@@ -46,7 +74,7 @@
                 black: cell === 0,
                 white: cell === 1,
               }"
-              v-if="cell !== '*'"
+              v-if="cell !== '*' && cell !== 2"
             ></div>
             <div
               class="gobang-stone virtual"
@@ -56,6 +84,7 @@
               }"
               v-if="curHover[0] === xIndex && curHover[1] === yIndex"
             ></div>
+            <div class="gobang-stone opposite" v-if="cell === 2"></div>
           </div>
         </div>
       </div>
@@ -66,9 +95,36 @@
         <el-button
           color="#3f72af"
           plain
-          v-if="round === 4 && !hasExchange && gobangRule.threeRoundsExchange && gobangRule.rifOpen"
+          v-if="round === 4 && !hasExchange && gobangRule.rifOpen && gobangRule.threeRoundsExchange"
           @click="exchange"
           >交换</el-button
+        >
+        <el-button
+          color="#3f72af"
+          plain
+          v-if="
+            round === 5 &&
+            pfMap[2] == 1 &&
+            gobangRule.rifOpen &&
+            gobangRule.fiveRoundsTwoDrop &&
+            canBeReport === true
+          "
+          @click="reportDrop"
+          >无效落子</el-button
+        >
+        <el-button
+          color="#3f72af"
+          plain
+          v-if="
+            round === 5 &&
+            pfMap[2] == 0 &&
+            gobangRule.rifOpen &&
+            gobangRule.fiveRoundsTwoDrop &&
+            canBeReport === false &&
+            backPoint.length === 2
+          "
+          @click="canBeReport = true"
+          >完成打点</el-button
         >
       </div>
       <div class="player2">
@@ -146,7 +202,24 @@ const round = ref(1) //第几手
 const isEnd = ref(false)
 const curFlag = ref(0) // 0:黑 1:白
 const curHover = ref([null, null])
-
+const backPoint = ref([]) //反点数
+const canBeReport = ref(false) //是否可以举报
+/**
+ * @method 检索反打点（五手两打中的两个未确定打点）
+ */
+function findBackPoint() {
+  if (round.value !== 5) {
+    backPoint.value = []
+  }
+  backPoint.value = []
+  chessboardData.value.forEach((item, xIndex) => {
+    item.forEach((item2, yIndex) => {
+      if (item2 === 2) {
+        backPoint.value.push([xIndex, yIndex])
+      }
+    })
+  })
+}
 const changeHover = (xIndex, yIndex) => {
   if (chessboardData.value[xIndex][yIndex] !== '*') {
     curHover.value = [null, null]
@@ -163,6 +236,12 @@ const changeHover = (xIndex, yIndex) => {
       curHover.value = [null, null]
       return
     }
+    if (round.value == 5 && canBeReport.value) {
+      return
+    }
+    if (round.value == 5 && !canBeReport.value && backPoint.value.length === 2) {
+      return
+    }
   }
   curHover.value = [xIndex, yIndex]
 }
@@ -175,10 +254,64 @@ const changeHover = (xIndex, yIndex) => {
 async function dropPoint(xIndex, yIndex) {
   // 判断是否结束
   if (isEnd.value) return
+  // 五手两打
+  // 白方选择去掉打点
+  if (
+    round.value == 5 &&
+    canBeReport.value &&
+    gobangRule.value.rifOpen &&
+    gobangRule.value.fiveRoundsTwoDrop
+  ) {
+    if (chessboardData.value[xIndex][yIndex] === 2) {
+      // 过滤当前点
+      backPoint.value = backPoint.value.filter((item) => {
+        return item[0] !== xIndex && item[1] !== yIndex
+      })
+      // 剩余点转为正常点
+      chessboardData.value[backPoint.value[0][0]][backPoint.value[0][1]] = 0
+      // 当前点清除
+      chessboardData.value[xIndex][yIndex] = '*'
+      round.value++
+      curFlag.value = curFlag.value === 0 ? 1 : 0
+      await nextTick()
+      yjRef.value.reset()
+      cbtRef.value.reset()
+      return
+    } else {
+      return
+    }
+  }
+  // 黑方选择打两点
+  if (
+    round.value == 5 &&
+    !canBeReport.value &&
+    gobangRule.value.rifOpen &&
+    gobangRule.value.fiveRoundsTwoDrop
+  ) {
+    // 选中正常点
+    if (chessboardData.value[xIndex][yIndex] === 1 || chessboardData.value[xIndex][yIndex] === 0) {
+      return
+    }
+    if (chessboardData.value[xIndex][yIndex] === 2) {
+      // 选中特殊打点
+      chessboardData.value[xIndex][yIndex] = '*'
+    } else {
+      // 选中空位->检查是否能打点
+      if (backPoint.value.length < 2) {
+        chessboardData.value[xIndex][yIndex] = 2
+      } else {
+        return
+      }
+    }
+    // 操作后重新查找反点
+    findBackPoint()
+    return
+  }
   // 判断是否已落子
   if (chessboardData.value[xIndex][yIndex] !== '*') return
   // 判断开局规则条件
   if (gobangRule.value.rifOpen) {
+    // 基本开局
     if (
       round.value < 4 &&
       !startMap.value[round.value].some((item) => {
@@ -300,6 +433,8 @@ async function reset() {
   }
   curFlag.value = 0
   round.value = 1
+  backPoint.value = []
+  canBeReport.value = false
   chessboardData.value = Array.from({ length: 15 }, () => Array(15).fill('*'))
   await nextTick()
   yjRef.value.reset()
@@ -321,6 +456,20 @@ async function exchange() {
   await nextTick()
   yjRef.value.reset()
   cbtRef.value.reset()
+}
+/**
+ * @method reportDrop 举报无效打点(算不出来就手动检举)
+ */
+function reportDrop() {
+  curFlag.value = curFlag.value === 0 ? 1 : 0
+  isEnd.value = true
+  if (curFlag.value == pfMap.value[1]) {
+    cbtRef.value.win()
+    yjRef.value.fail()
+  } else {
+    cbtRef.value.fail()
+    yjRef.value.win()
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -449,6 +598,13 @@ $--cell-size-half: calc($--cell-size / 2);
     border-radius: 50%;
     z-index: 1;
     $--box-shadow: 2px 2px 8px 2px rgba(0, 0, 0, 0.272);
+    &.opposite {
+      background-color: #1a1a1a;
+      box-shadow:
+        $--box-shadow,
+        inset 2px 2px 8px 4px rgba(179, 179, 179, 0.3),
+        inset -2px -2px 8px 4px rgba(179, 179, 179, 0.3);
+    }
     &.black {
       background-color: #000;
       background-image: radial-gradient(#8e8e8e, transparent);
@@ -556,6 +712,19 @@ $--cell-size-half: calc($--cell-size / 2);
         bottom: 0;
         right: 0;
         z-index: 1;
+      }
+      .button-group {
+        display: flex;
+        width: 40%;
+        height: 70%;
+        align-items: center;
+        margin-left: calc(50% - 20px);
+        justify-content: center;
+        :deep {
+          .el-button {
+            width: 100%;
+          }
+        }
       }
     }
     .gobang-container {
